@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-server-svc
+  labels:
+    app: auth-server
+spec:
+  ports:
+  - port: 9999
+    targetPort: 9999
+    protocol: TCP
+    name: http
+  selector:
+    app: auth-server
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: my-auth-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: auth-server
+    spec:
+      containers:
+      - name: auth-server
+        image: ursuad/tutorial-springbox-auth-server:latest
+        ports:
+        - containerPort: 9999
+#        livenessProbe:
+#            httpGet:
+#              path: /health
+#              port: 9999
+#            initialDelaySeconds: 60
+#            timeoutSeconds: 1

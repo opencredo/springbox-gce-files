@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: springbox-gateway-svc
+  labels:
+    app: springbox-api-gateway
+spec:
+  ports:
+  - port: 9000
+    targetPort: 9000
+    protocol: TCP
+    name: http
+  selector:
+    app: springbox-api-gateway
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: my-springbox-api-gateway
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: springbox-springbox-api-gateway
+    spec:
+      containers:
+      - name: auth-server
+        image: ursuad/tutorial-springbox-api-gateway:latest
+        env:
+        - name: CONFIG_SERVER_HOST
+          value: "config-server-svc"
+        - name: CONFIG_SERVER_PORT
+          value: "8888"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "container-engine"
+        ports:
+        - containerPort: 9000
+        livenessProbe:
+            httpGet:
+              path: /health
+              port: 9000
+            initialDelaySeconds: 70
+            timeoutSeconds: 1
